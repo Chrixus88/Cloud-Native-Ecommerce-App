@@ -5,9 +5,9 @@ const errorHandler = require("./middleware/errorHandler")
 
 const app = express();
 
-app.use(helmet);
-app.use(cors);
-app.use(express.json)
+app.use(helmet());
+app.use(cors());
+app.use(express.json())
 
 
 app.get("/health", (req,res)=>{
