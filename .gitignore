@@ -1,4 +1,17 @@
-backend/node_modules/
-.env
-logs/
-coverage/
+# Node.js dependencies
+**/node_modules/
+
+# Environment files
+**/.env
+**/.env.*
+
+# Logs
+**/npm-debug.log
+**/logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
