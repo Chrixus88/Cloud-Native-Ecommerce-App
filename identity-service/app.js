@@ -1,6 +1,11 @@
 const express = require("express");
 const erroHandler = require("./middleware/errorHandler")
 const app = express()
+const cookieParser = require("cookie-parser")
+const userRoute = require("./routes/userRoute")
+
+app.use(cookieParser())
+app.use(express.json())
 
 
 app.get("/health", (req,res)=>{
@@ -13,6 +18,9 @@ app.get("/health", (req,res)=>{
 
     })
 })
+
+
+app.use("/api/users", userRoute);
 
 app.use((req,res)=>{
     return res.status(404).json({
