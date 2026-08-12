@@ -7,6 +7,7 @@ const register = async (req, res, next) => {console.log("Registration endpoint r
     const { username, email, password } = req.body;
     let client;
 
+    const role = "user";
     try {
         if (!username || !email || !password) {
             return res.status(400).json({
@@ -36,18 +37,20 @@ const register = async (req, res, next) => {console.log("Registration endpoint r
 
         const newUser = await client.query(
             `INSERT INTO users
-            (username, email, password_hash)
-            VALUES ($1, $2, $3)
+            (username, email, password_hash,role)
+            VALUES ($1, $2, $3,$4)
             RETURNING id`,
-            [username, email, hashedPassword]
+            [username, email, hashedPassword,role]
         );
 
         const userId = newUser.rows[0].id;
 
         const accessToken = jwt.sign(
             {
-                userId,
-                username
+                id: userId,
+                username,
+                email,
+                role
             },
             process.env.JWT_SECRET,
             {
@@ -57,7 +60,7 @@ const register = async (req, res, next) => {console.log("Registration endpoint r
 
         const refreshToken = jwt.sign(
             {
-                userId,
+                id:userId,
                 type: "refresh"
             },
             process.env.JWT_REFRESH_SECRET,
@@ -115,7 +118,7 @@ const register = async (req, res, next) => {console.log("Registration endpoint r
 };
 
 const login = async (req, res, next) => {
-
+  
     const { email, password } = req.body;
     let client;
 
@@ -135,7 +138,8 @@ const login = async (req, res, next) => {
                 id,
                 username,
                 email,
-                password_hash
+                password_hash,
+                role
             FROM users
             WHERE email = $1`,
             [email]
@@ -144,7 +148,7 @@ const login = async (req, res, next) => {
         if (result.rowCount === 0) {
             return res.status(401).json({
                 success: false,
-                message: "Invalid credentials"
+                message: "Invalid credentials."
             });
         }
 
@@ -158,28 +162,32 @@ const login = async (req, res, next) => {
         if (!isPasswordMatch) {
             return res.status(401).json({
                 success: false,
-                message: "Invalid credentials"
+                message: "Invalid credentials."
             });
         }
+        
 
         await client.query("BEGIN");
+          
 
         const userId = user.id;
 
         const accessToken = jwt.sign(
             {
-                userId,
-                username: user.username
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                role: user.role
             },
             process.env.JWT_SECRET,
             {
                 expiresIn: "15m"
             }
         );
-
+        
         const refreshToken = jwt.sign(
             {
-                userId,
+                id: user.id,
                 type: "refresh"
             },
             process.env.JWT_REFRESH_SECRET,
@@ -203,7 +211,7 @@ const login = async (req, res, next) => {
                 refreshTokenExpiresAt
             ]
         );
-
+      
         await client.query("COMMIT");
 
         res.cookie("refreshToken", refreshToken, {

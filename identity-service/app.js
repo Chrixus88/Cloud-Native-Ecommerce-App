@@ -20,7 +20,7 @@ app.get("/health", (req,res)=>{
 })
 
 
-app.use("/api/users", userRoute);
+app.use("/api/v1/users", userRoute);
 
 app.use((req,res)=>{
     return res.status(404).json({

@@ -2,11 +2,37 @@ const express = require("express");
 const helmet = require("helmet");
 const cors = require("cors");
 const errorHandler = require("./middleware/errorHandler")
+const httpProxyMiddleware = require("http-proxy-middleware");
+
 
 const app = express();
 
 app.use(helmet());
 app.use(cors());
+
+app.use(
+    "/api/auth",
+    httpProxyMiddleware.createProxyMiddleware({
+        target: "http://localhost:3001",
+        changeOrigin: true,
+        pathRewrite: {
+            "^/": "/api/v1/users/"
+        }
+    })
+);
+
+app.use(
+  "/api/products",
+  httpProxyMiddleware.createProxyMiddleware({
+    target: "http://localhost:3002",
+    changeOrigin: true,
+    pathRewrite: {
+      "^/": "/api/v1/products/"
+    }
+  })
+);
+
+
 app.use(express.json())
 
 
@@ -20,8 +46,6 @@ app.get("/health", (req,res)=>{
 
     })
 })
-
-
 
 app.use((req,res)=>{
     return res.status(404).json({
