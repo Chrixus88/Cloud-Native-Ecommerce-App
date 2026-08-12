@@ -89,12 +89,12 @@ marketplace/
 
 - [x] Architecture Design
 - [x] Repository Setup
-- [x] Bootstrap API Gateway
-- [x] Bootstrap Identity Service
+- [x] API Gateway
+- [x] Identity Service
 - [ ] Docker
 - [ ] Kubernetes
-- [ ] Authentication
-- [ ] Products
+- [x] Authentication
+- [x] Products
 - [ ] Orders
 - [ ] Upload Service
 - [ ] Monitoring
