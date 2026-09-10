@@ -1,8 +1,6 @@
 require("dotenv").config();
 const app = require("./app")
 
-
-
 const Port = process.env.PORT || 3002;
 
 app.listen(Port,()=>{

@@ -61,6 +61,10 @@ marketplace/
 
 ## Tech Stack
 
+## Frontend
+
+- React.js
+
 ### Backend
 
 - Node.js
@@ -91,17 +95,19 @@ marketplace/
 - [x] Repository Setup
 - [x] API Gateway
 - [x] Identity Service
-- [ ] Docker
-- [ ] Kubernetes
 - [x] Authentication
 - [x] Products
-- [ ] Orders
-- [ ] Upload Service
-- [ ] Monitoring
+- [x] Cart Service
+- [x] Inventory Service
+- [x] Orders Service
+- [x] Payment Service
+- [ ] Docker
+- [ ] Kubernetes
+- [ ] Terraform
 - [ ] CI/CD
-
----
-
+- [ ] Monitoring
+- [ ] Load Testing
+- [ ] Upload Service
 ## Author
 
 NNAYEM CHRISTOPHER OLISADEBE
