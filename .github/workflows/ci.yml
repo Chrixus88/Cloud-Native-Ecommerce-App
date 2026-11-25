@@ -58,11 +58,44 @@ jobs:
             gateway:
               - 'api-gateway/**'
 
-  product-ci:
-    name: Product Service CI
+  microservices-ci:
+    name: CI - ${{ matrix.service }}
     runs-on: ubuntu-latest
     needs: changes
-    if: needs.changes.outputs.product == 'true' || github.event_name == 'workflow_dispatch'
+
+    if: needs.changes.outputs[matrix.filter] == 'true' || github.event_name == 'workflow_dispatch'
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: product-service
+            filter: product
+            image: ecommerce-product-service
+
+          - service: identity-service
+            filter: identity
+            image: ecommerce-identity-service
+
+          - service: cart-service
+            filter: cart
+            image: ecommerce-cart-service
+
+          - service: inventory-service
+            filter: inventory
+            image: ecommerce-inventory-service
+
+          - service: order-service
+            filter: order
+            image: ecommerce-order-service
+
+          - service: payment-service
+            filter: payment
+            image: ecommerce-payment-service
+
+          - service: api-gateway
+            filter: gateway
+            image: ecommerce-api-gateway
 
     steps:
       - name: Checkout repository
@@ -73,23 +106,23 @@ jobs:
         with:
           node-version: 22
 
-      - name: Scan Product Service with Trivy
+      - name: Scan ${{ matrix.service }} with Trivy
         uses: aquasecurity/trivy-action@v0.36.0
         with:
-          scan-type: 'fs'
-          scan-ref: './product-service'
-          scanners: 'vuln,secret,misconfig'
-          severity: 'HIGH,CRITICAL'
+          scan-type: fs
+          scan-ref: ./${{ matrix.service }}
+          scanners: vuln,secret,misconfig
+          severity: HIGH,CRITICAL
           ignore-unfixed: true
           exit-code: '0'
-          format: 'table'
+          format: table
 
       - name: Install dependencies
-        working-directory: product-service
+        working-directory: ${{ matrix.service }}
         run: npm ci
 
       - name: Build Docker image
         run: |
           docker build \
-            -t ecommerce-product-service:${{ github.sha }} \
-            ./product-service
+            -t ${{ matrix.image }}:${{ github.sha }} \
+            ./${{ matrix.service }}
