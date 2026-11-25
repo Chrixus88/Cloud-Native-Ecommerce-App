@@ -62,7 +62,7 @@ jobs:
     name: Product Service CI
     runs-on: ubuntu-latest
     needs: changes
-    if: needs.changes.outputs.product == 'true'
+    if: needs.changes.outputs.product == 'true' || github.event_name == 'workflow_dispatch'
 
     steps:
       - name: Checkout repository
