@@ -73,6 +73,17 @@ jobs:
         with:
           node-version: 22
 
+      - name: Scan Product Service with Trivy
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: 'fs'
+          scan-ref: './product-service'
+          scanners: 'vuln,secret,misconfig'
+          severity: 'HIGH,CRITICAL'
+          ignore-unfixed: true
+          exit-code: '1'
+          format: 'table'
+
       - name: Install dependencies
         working-directory: product-service
         run: npm ci
