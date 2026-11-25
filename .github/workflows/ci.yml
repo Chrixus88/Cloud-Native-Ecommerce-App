@@ -39,22 +39,16 @@ jobs:
           filters: |
             product:
               - 'product-service/**'
-
             identity:
               - 'identity-service/**'
-
             cart:
               - 'cart-service/**'
-
             inventory:
               - 'inventory-service/**'
-
             order:
               - 'order-service/**'
-
             payment:
               - 'payment-service/**'
-
             gateway:
               - 'api-gateway/**'
 
@@ -62,8 +56,6 @@ jobs:
     name: CI - ${{ matrix.service }}
     runs-on: ubuntu-latest
     needs: changes
-
-    if: needs.changes.outputs[matrix.filter] == 'true' || github.event_name == 'workflow_dispatch'
 
     strategy:
       fail-fast: false
@@ -98,15 +90,30 @@ jobs:
             image: ecommerce-api-gateway
 
     steps:
+      - name: Check whether service should run
+        id: service-check
+        env:
+          CHANGED: ${{ needs.changes.outputs[matrix.filter] }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          if [ "$CHANGED" = "true" ] || [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Checkout repository
+        if: steps.service-check.outputs.run == 'true'
         uses: actions/checkout@v4
 
       - name: Setup Node.js
+        if: steps.service-check.outputs.run == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: 22
 
-      - name: Scan ${{ matrix.service }} with Trivy
+      - name: Scan with Trivy
+        if: steps.service-check.outputs.run == 'true'
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: fs
@@ -118,10 +125,12 @@ jobs:
           format: table
 
       - name: Install dependencies
+        if: steps.service-check.outputs.run == 'true'
         working-directory: ${{ matrix.service }}
         run: npm ci
 
       - name: Build Docker image
+        if: steps.service-check.outputs.run == 'true'
         run: |
           docker build \
             -t ${{ matrix.image }}:${{ github.sha }} \
