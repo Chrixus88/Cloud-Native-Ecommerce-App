@@ -15,10 +15,10 @@
     "amqplib": "^2.0.1",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "uuid": "^14.0.2"
+    "uuid": "^14.0.2",
+    "pg": "^8.23.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14",
-    "pg": "^8.23.0"
+    "nodemon": "^3.1.14"
   }
 }

@@ -1,0 +1,84 @@
+
+name: Ecommerce Microservices CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    name: Detect Changed Services
+    runs-on: ubuntu-latest
+
+    outputs:
+      product: ${{ steps.filter.outputs.product }}
+      identity: ${{ steps.filter.outputs.identity }}
+      cart: ${{ steps.filter.outputs.cart }}
+      inventory: ${{ steps.filter.outputs.inventory }}
+      order: ${{ steps.filter.outputs.order }}
+      payment: ${{ steps.filter.outputs.payment }}
+      gateway: ${{ steps.filter.outputs.gateway }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed microservices
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          filters: |
+            product:
+              - 'product-service/**'
+
+            identity:
+              - 'identity-service/**'
+
+            cart:
+              - 'cart-service/**'
+
+            inventory:
+              - 'inventory-service/**'
+
+            order:
+              - 'order-service/**'
+
+            payment:
+              - 'payment-service/**'
+
+            gateway:
+              - 'api-gateway/**'
+
+  product-ci:
+    name: Product Service CI
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.product == 'true'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        working-directory: product-service
+        run: npm ci
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            -t ecommerce-product-service:${{ github.sha }} \
+            ./product-service

@@ -2,7 +2,7 @@ require("dotenv").config();
 
 const express = require("express");
 
-const errorHandler = require("../inventory-service/middleware/errorHandler");
+const errorHandler = require("./middleware/errorHandler");
 
 const app = express();
 
